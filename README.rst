@@ -5,12 +5,16 @@ hustler is a control flow library which works in browser.
 
 Getting started
 ===============
-Load hustler (and jquery for convenience)::
+Load hustler (and jquery for convenience):
+
+.. code:: html
 
   <script src="jquery.min.js"></script>
   <script src="hustler.min.js"></script>
 
-Register actions::
+Register actions:
+
+.. code:: javascript
 
   hustler.on('collect', function () {
     var arg1 = Number($('#arg1').val()), arg2 = Number($('#arg2').val());
@@ -25,11 +29,15 @@ Register actions::
     $('#result').val(data.result);
   });
 
-And then, emit an event::
+And then, emit an event:
+
+.. code:: javascript
 
   $('#calc').on('click', hustler.emit('collect -> add -> output'));
 
-To execute conditional sequence, register actions with a pattern::
+To execute conditional sequence, register actions with a pattern:
+
+.. code:: javascript
 
   hustler.on('collect', function () {
     return { value: $('#code').val() };
@@ -51,7 +59,9 @@ To execute conditional sequence, register actions with a pattern::
     $('#info').text('code is invalid.');
   }, { valid: false });
 
-And emit a event with conditinal expression::
+And emit a event with conditinal expression:
+
+.. code:: javascript
 
   $('#check').on('click', hustler.emit('collect -> validate -> { valid | invalid }'));
 
