@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>validation example - hustler</title>
+    <style>
+      #error {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <form method="POST">
+
+      <div>
+        <label>name</label>
+        <input name="name" type="text"/>
+      </div>
+
+      <div>
+        <label>age</label>
+        <input name="age" type="text"/>
+      </div>
+
+      <div>
+        <label>language</label>
+        <select name="language">
+          <option>JavaScript</option>
+          <option>C</option>
+          <option>Erlang</option>
+          <option>Java</option>
+          <option>Python</option>
+        </select>
+      </div>
+
+      <input name="submit" type="submit" value="submit"/>
+
+    </form>
+
+    <div id="error"></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="../build/hustler.min.js"></script>
+    <script>
+      var on = hustler.on;
+      var emit = hustler.emit;
+
+
+      on('collect', function () {
+        var values = {
+          name: $('[name=name]').val(),
+          age: $('[name=age]').val(),
+          language: $('[name=language]').val()
+        };
+        return { values: values };
+      });
+
+
+      on('validate.required', function (data) {
+        var values = data.values;
+        var props = ['name', 'age', 'language'];
+        var probremOccurred = false;
+        var errorMessages = [];
+        props.forEach(function (prop) {
+          if (values[prop] === '') {
+            probremOccurred = true;
+            errorMessages.push(prop + ' is required.');
+          }
+        });
+
+        data.hasProblem = probremOccurred;
+        if (data.errorMessages === undefined) {
+          data.errorMessages = errorMessages;
+        }
+        else {
+          data.errorMessages.concat(errorMessages);
+        }
+        return data;
+      });
+
+      on('validate.number', function (data) {
+        if (isNaN(data.values.age)) {
+          data.hasProblem = true;
+          if (data.errorMessages === undefined) {
+            data.errorMessages = [];
+          }
+          data.errorMessages.push('age must be number.');
+        }
+        return data;
+      });
+
+
+      on('valid', function (data) {
+        return data;
+      });
+
+      on('invalid', function (data) {
+        return data;
+      }, { hasProblem: true });
+      
+
+      on('submit', function (data) {
+        console.log('send to server: ' + JSON.stringify(data.values));
+      });
+
+      on('error', function (data) {
+        var message = ['error.'].concat(data.errorMessages);
+        $('#error').html(message.join('<br />'));
+      });
+
+      on('clear.error', function (data) {
+        $('#error').text('');
+        return data;
+      });
+
+      $('[name=submit]').on('click', emit(
+        'collect -> validate.required -> validate.number \
+        -> { valid -> submit -> clear.error | invalid -> error }'
+      ));
+
+    </script>
+
+  </body>
+</html>

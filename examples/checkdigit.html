@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>check digit example - hustler</title>
+  </head>
+  <body>
+    
+    <div>
+      <input id="code" type="text"/> 
+      <button id="check">check</button>
+    </div>
+
+    <div id="info"></div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="../build/hustler.min.js"></script>
+    <script>
+      var on = hustler.on;
+      var emit = hustler.emit;
+
+      on('collect', function () {
+        return { value: $('#code').val() };
+      });
+
+      on('validate', function (data) {
+        var code = data.value;
+        var checkdigit = code % 10;
+        code = parseInt(code / 10);
+        var odd = 0, even = 0, digit = 2;
+        while (code) {
+          var num = code % 10;
+          if (digit % 2 === 0) {
+            odd += num;
+          } else {
+            even += num;
+          }
+          code = parseInt(code / 10);
+          digit++;
+        }
+        var result = (10 - (((odd * 3) + even) % 10));
+        return { valid: (checkdigit === result) };
+      });
+
+      on('valid', function (data) {
+        $('#info').text('code is valid.');
+      }, { valid: true });
+
+      on('invalid', function (data) {
+        $('#info').text('code is invalid.');
+      }, { valid: false });
+
+      $('#check').on('click', emit('collect -> validate -> { valid | invalid }'));
+
+    </script>
+
+  </body>
+</html>

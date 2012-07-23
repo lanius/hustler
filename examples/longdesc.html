@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>long description example - hustler</title>
+  </head>
+  <body>
+    
+    <div>
+      <input id="in" type="text"/>
+      <button id="copy">-&gt;</button>
+      <input id="out" type="text"/>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="../build/hustler.min.js"></script>
+    <script>
+      var on = hustler.on;
+      var emit = hustler.emit;
+
+      on('get value from input', function () {
+        return $('#in').val();
+      });
+
+      on('log to console', function (data) {
+        console.log(data);
+        return data;
+      });
+
+      on('put to output', function (data) {
+        $('#out').val(data);
+      });
+
+      $('#copy').on('click', emit('get value from input -> log to console -> put to output'));
+
+    </script>
+
+  </body>
+</html>

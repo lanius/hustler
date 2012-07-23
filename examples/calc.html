@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>calc example - hustler</title>
+  </head>
+  <body>
+    
+    <div>
+      <input id="arg1" type="text"/> 
+      +
+      <input id="arg2" type="text"/> 
+      <button id="calc">=</button>
+      <input id="result" type="text"/>
+    </div>
+
+    
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="../build/hustler.min.js"></script>
+    <script>
+      var on = hustler.on;
+      var emit = hustler.emit;
+
+      on('collect', function () {
+        var arg1 = Number($('#arg1').val()), arg2 = Number($('#arg2').val());
+        return { arg1: arg1, arg2: arg2 };
+      });
+
+      on('add', function (data) {
+        return { result: (data.arg1 + data.arg2) };
+      });
+
+      on('output', function (data) {
+        $('#result').val(data.result);
+      });
+
+      $('#calc').on('click', emit('collect -> add -> output'));
+
+    </script>
+
+  </body>
+</html>
