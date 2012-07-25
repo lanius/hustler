@@ -1,6 +1,9 @@
 module.exports = function(grunt) {
   grunt.initConfig({
-
+    lint: {
+      files: ['src/core.js']
+    },
+    
   	concat: {
       dist: {
         src: ['src/core.js', 'src/parser/parser.js'],
@@ -22,5 +25,5 @@ module.exports = function(grunt) {
 
   });
 
-  grunt.registerTask('default', 'concat min');
+  grunt.registerTask('default', 'lint concat min');
 };

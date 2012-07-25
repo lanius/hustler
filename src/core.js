@@ -22,7 +22,7 @@ var hustler = (function () {
       event.preventDefault(); // TODO: switch enable/disable with option
       var balls = parser.parse(path);
       shot(balls, arg);
-    }
+    };
   }
 
   function shot(balls, arg) {
