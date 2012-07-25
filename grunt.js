@@ -3,7 +3,7 @@ module.exports = function(grunt) {
     lint: {
       files: ['src/core.js']
     },
-    
+
   	concat: {
       dist: {
         src: ['src/core.js', 'src/parser/parser.js'],
@@ -20,10 +20,27 @@ module.exports = function(grunt) {
 
     watch: {
       files: 'src/*.js',
-      tasks: 'concat min'
-    }
+      tasks: 'default'
+    },
+
+    shell: {
+      generate_parser: {
+        command: 'pegjs --export-var hustler.parser src/parser/hustler.pegjs src/parser/parser.js'
+      }
+    },
+
+    jasmine: { // to run tests, PhantomJS required. http://phantomjs.org/
+      all: ['tests/specrunner.html']
+    },
 
   });
 
-  grunt.registerTask('default', 'lint concat min');
+  grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-jasmine-task');
+
+  // alias
+  grunt.registerTask('genparser', 'shell'); 
+  grunt.registerTask('test', 'jasmine');
+
+  grunt.registerTask('default', 'genparser lint test concat min');
 };
