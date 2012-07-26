@@ -1,3 +1,7 @@
+==========
+hustler.js
+==========
+
 What is this?
 =============
 hustler is a control flow library which works in browser.
