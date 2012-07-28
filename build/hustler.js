@@ -121,8 +121,10 @@ hustler._module.parser = (function(){
         "actions": parse_actions,
         "selection": parse_selection,
         "branch": parse_branch,
+        "others": parse_others,
         "sequence": parse_sequence,
         "action": parse_action,
+        "name": parse_name,
         "chars": parse_chars,
         "char": parse_char,
         "_": parse__,
@@ -277,23 +279,18 @@ hustler._module.parser = (function(){
         pos1 = pos;
         result0 = parse_actions();
         if (result0 !== null) {
-          if (input.charCodeAt(pos) === 124) {
-            result1 = "|";
-            pos++;
+          result2 = parse_others();
+          if (result2 !== null) {
+            result1 = [];
+            while (result2 !== null) {
+              result1.push(result2);
+              result2 = parse_others();
+            }
           } else {
             result1 = null;
-            if (reportFailures === 0) {
-              matchFailed("\"|\"");
-            }
           }
           if (result1 !== null) {
-            result2 = parse_actions();
-            if (result2 !== null) {
-              result0 = [result0, result1, result2];
-            } else {
-              result0 = null;
-              pos = pos1;
-            }
+            result0 = [result0, result1];
           } else {
             result0 = null;
             pos = pos1;
@@ -303,13 +300,49 @@ hustler._module.parser = (function(){
           pos = pos1;
         }
         if (result0 !== null) {
-          result0 = (function(offset, left, right) { return [left, right];})(pos0, result0[0], result0[2]);
+          result0 = (function(offset, first, others) { return [first].concat(others); })(pos0, result0[0], result0[1]);
         }
         if (result0 === null) {
           pos = pos0;
         }
         if (result0 === null) {
           result0 = parse_actions();
+        }
+        return result0;
+      }
+      
+      function parse_others() {
+        var result0, result1;
+        var pos0, pos1;
+        
+        pos0 = pos;
+        pos1 = pos;
+        if (input.charCodeAt(pos) === 124) {
+          result0 = "|";
+          pos++;
+        } else {
+          result0 = null;
+          if (reportFailures === 0) {
+            matchFailed("\"|\"");
+          }
+        }
+        if (result0 !== null) {
+          result1 = parse_actions();
+          if (result1 !== null) {
+            result0 = [result0, result1];
+          } else {
+            result0 = null;
+            pos = pos1;
+          }
+        } else {
+          result0 = null;
+          pos = pos1;
+        }
+        if (result0 !== null) {
+          result0 = (function(offset, actions) { return actions; })(pos0, result0[1]);
+        }
+        if (result0 === null) {
+          pos = pos0;
         }
         return result0;
       }
@@ -348,7 +381,7 @@ hustler._module.parser = (function(){
           pos = pos1;
         }
         if (result0 !== null) {
-          result0 = (function(offset, action, actions) { return { name: action, next: actions }; })(pos0, result0[0], result0[2]);
+          result0 = (function(offset, action, actions) { action.next = actions; return action; })(pos0, result0[0], result0[2]);
         }
         if (result0 === null) {
           pos = pos0;
@@ -357,7 +390,7 @@ hustler._module.parser = (function(){
           pos0 = pos;
           result0 = parse_action();
           if (result0 !== null) {
-            result0 = (function(offset, action) { return { name: action } })(pos0, result0);
+            result0 = (function(offset, action) { return action; })(pos0, result0);
           }
           if (result0 === null) {
             pos = pos0;
@@ -367,6 +400,21 @@ hustler._module.parser = (function(){
       }
       
       function parse_action() {
+        var result0;
+        var pos0;
+        
+        pos0 = pos;
+        result0 = parse_name();
+        if (result0 !== null) {
+          result0 = (function(offset, name) { return { name: name }; })(pos0, result0);
+        }
+        if (result0 === null) {
+          pos = pos0;
+        }
+        return result0;
+      }
+      
+      function parse_name() {
         var result0, result1, result2;
         var pos0, pos1;
         
