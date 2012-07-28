@@ -1,0 +1,4 @@
+framework: jasmine
+src_files:
+- build/hustler.min.js
+- tests/*.js

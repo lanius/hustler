@@ -1,1 +1,1 @@
-grunt watch
+grunt.cmd watch

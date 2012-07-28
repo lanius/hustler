@@ -19,28 +19,22 @@ module.exports = function(grunt) {
   	},
 
     watch: {
-      files: 'src/*.js',
+      files: ['src/*.js', 'src/parser/*.pegjs', 'tests/*.js'],
       tasks: 'default'
     },
 
     shell: {
       generate_parser: {
-        command: 'pegjs --export-var hustler.parser src/parser/hustler.pegjs src/parser/parser.js'
+        command: 'pegjs --export-var hustler._module.parser src/parser/hustler.pegjs src/parser/parser.js'
       }
-    },
-
-    jasmine: { // to run tests, PhantomJS required. http://phantomjs.org/
-      all: ['tests/specrunner.html']
-    },
+    }
 
   });
 
   grunt.loadNpmTasks('grunt-shell');
-  grunt.loadNpmTasks('grunt-jasmine-task');
 
   // alias
   grunt.registerTask('genparser', 'shell'); 
-  grunt.registerTask('test', 'jasmine');
 
-  grunt.registerTask('default', 'genparser lint test concat min');
+  grunt.registerTask('default', 'genparser lint concat min');
 };

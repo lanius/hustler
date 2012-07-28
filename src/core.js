@@ -1,12 +1,7 @@
 var hustler = (function () {
   'use strict';
 
-  var parser = {
-    parse: function parse(path) {
-      this.parse = hustler.parser.parse.bind(hustler);
-      return this.parse(path);
-    }
-  };
+  var module = {}; // external scripts are concatenated to this object
 
   var actions = {};
   var patterns = {};
@@ -18,11 +13,17 @@ var hustler = (function () {
 
   function emit(path, arg) {
     return function (event) {
-      // TODO: enable to use event.stopPropagation() with option
-      event.preventDefault(); // TODO: switch enable/disable with option
-      var balls = parser.parse(path);
+      if (event !== undefined) {
+        // TODO: enable to use event.stopPropagation() with option
+        event.preventDefault(); // TODO: switch enable/disable with option
+      }
+      var balls = module.parser.parse(path);
       shot(balls, arg);
     };
+  }
+
+  function emitImmediately(path, arg) {
+    emit(path, arg)();
   }
 
   function shot(balls, arg) {
@@ -70,7 +71,10 @@ var hustler = (function () {
 
   return {
     on: on,
-    emit: emit
+    emit: emit,
+    _module: module,
+    _actions: actions,
+    _patterns: patterns
   };
 
 }());

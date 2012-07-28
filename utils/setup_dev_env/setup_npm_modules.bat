@@ -1,1 +1,1 @@
-npm install -g grunt pegjs
+npm install -g grunt pegjs testem
