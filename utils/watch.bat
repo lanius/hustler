@@ -1,2 +1,2 @@
-start testem
+start test
 grunt.cmd watch
