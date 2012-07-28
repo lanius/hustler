@@ -72,6 +72,7 @@ var hustler = (function () {
   return {
     on: on,
     emit: emit,
+    emitImmediately: emitImmediately,
     _module: module,
     _actions: actions,
     _patterns: patterns
