@@ -73,6 +73,8 @@ var hustler = (function () {
     on: on,
     emit: emit,
     emitImmediately: emitImmediately,
+
+    // export private apis for mainly tests
     _module: module,
     _actions: actions,
     _patterns: patterns

@@ -2,19 +2,65 @@ describe('parser', function () {
 
   var parser = hustler._module.parser;
 
+  var helper = {
+    expectParsedActionNameToEqualPath : function (path) {
+      var action = parser.parse(path);
+      expect(action.name).toEqual(path);
+    }
+  };
+
   it('parses a simple path to an action', function () {
-    var action = parser.parse('step');
-    expect(action.name).toEqual('step');
-    expect(action.next).toBeUndefined();
+    helper.expectParsedActionNameToEqualPath('step');
   });
 
   it('parses a long named path to actions', function () {
-  	// todo: impl
+    helper.expectParsedActionNameToEqualPath('this is a long named step');
   });
 
-  it('parses a complex named path to actions', function () {
-  	// todo: impl
-  	// atmark, asterisk, tilde, hat, hyphen, underscore, comma, period, etc.
+  describe('complex named path', function () {
+
+    it('parses a path that contains atmark to actions', function () {
+      helper.expectParsedActionNameToEqualPath('@action@name@');
+    });
+
+    it('parses a path that contains tilde to actions', function () {
+      helper.expectParsedActionNameToEqualPath('~action~name~');
+    });
+
+    it('parses a path that contains hat to actions', function () {
+      helper.expectParsedActionNameToEqualPath('^action^name^');
+    });
+
+    it('parses a path that contains comma to actions', function () {
+      helper.expectParsedActionNameToEqualPath(',action,name,');
+    });
+
+    it('parses a path that contains period to actions', function () {
+      helper.expectParsedActionNameToEqualPath('.action.name.');
+    });
+
+    it('parses a path that contains underscore to actions', function () {
+      helper.expectParsedActionNameToEqualPath('_action_name_');
+    });
+
+    // todo: test hyphen
+
+    it('parses a path that contains equal to actions', function () {
+      helper.expectParsedActionNameToEqualPath('=action=name=');
+    });
+
+    it('parses a path that contains slash to actions', function () {
+      helper.expectParsedActionNameToEqualPath('/action/name/');
+    });
+
+    it('parses a path that contains square brackets to actions', function () {
+      helper.expectParsedActionNameToEqualPath('[action][name]');
+    });
+
+    it('parses a path that contains round bracket to actions', function () {
+      helper.expectParsedActionNameToEqualPath('(action)(name)');
+    });
+
   });
 
   it('parses a path to straight actions', function () {

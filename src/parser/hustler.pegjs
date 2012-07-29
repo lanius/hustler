@@ -28,10 +28,10 @@ chars
   = chars:char+ { return chars.join(""); }
 
 char
-  = [ \(\)=@./0-9a-zA-Z]
+  = [0-9a-zA-Z @~^,._=/\[\]\(\)]
 
 _ "whitespace" 
   = whitespace*
 
 whitespace
-  = [ \t\n\r]
+  = [\t\n\r ]
