@@ -477,13 +477,13 @@ hustler._module.parser = (function(){
       function parse_char() {
         var result0;
         
-        if (/^[0-9a-zA-Z @~^,._=\/[\]()]/.test(input.charAt(pos))) {
+        if (/^[0-9a-zA-Z @~^,._?!#$%&=\/[\]()]/.test(input.charAt(pos))) {
           result0 = input.charAt(pos);
           pos++;
         } else {
           result0 = null;
           if (reportFailures === 0) {
-            matchFailed("[0-9a-zA-Z @~^,._=\\/[\\]()]");
+            matchFailed("[0-9a-zA-Z @~^,._?!#$%&=\\/[\\]()]");
           }
         }
         return result0;

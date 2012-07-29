@@ -28,7 +28,7 @@ chars
   = chars:char+ { return chars.join(""); }
 
 char
-  = [0-9a-zA-Z @~^,._=/\[\]\(\)]
+  = [0-9a-zA-Z @~^,._?!#$%&=/\[\]\(\)]
 
 _ "whitespace" 
   = whitespace*

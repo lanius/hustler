@@ -14,7 +14,7 @@ describe('parser', function () {
   });
 
   it('parses a long named path to actions', function () {
-    helper.expectParsedActionNameToEqualPath('this is a long named step');
+    helper.expectParsedActionNameToEqualPath('This is a long named step');
   });
 
   describe('complex named path', function () {
@@ -53,12 +53,44 @@ describe('parser', function () {
       helper.expectParsedActionNameToEqualPath('/action/name/');
     });
 
+    it('parses a path that contains question to actions', function () {
+      helper.expectParsedActionNameToEqualPath('?action?name?');
+    });
+
+    it('parses a path that contains exclamation to actions', function () {
+      helper.expectParsedActionNameToEqualPath('!action!name!');
+    });
+
+    it('parses a path that contains dollar to actions', function () {
+      helper.expectParsedActionNameToEqualPath('$action$name$');
+    });
+
+    it('parses a path that contains percent to actions', function () {
+      helper.expectParsedActionNameToEqualPath('%action%name%');
+    });
+
+    it('parses a path that contains ampersand to actions', function () {
+      helper.expectParsedActionNameToEqualPath('&action&name&');
+    });
+
+    it('parses a path that contains hash to actions', function () {
+      helper.expectParsedActionNameToEqualPath('#action#name#');
+    });
+
     it('parses a path that contains square brackets to actions', function () {
       helper.expectParsedActionNameToEqualPath('[action][name]');
     });
 
     it('parses a path that contains round bracket to actions', function () {
       helper.expectParsedActionNameToEqualPath('(action)(name)');
+    });
+
+    it('parses a path that contains new lines to actions', function () {
+      helper.expectParsedActionNameToEqualPath('this is \
+        action name \
+        that contain \
+        new lines'
+      );
     });
 
   });
@@ -94,8 +126,8 @@ describe('parser', function () {
   });
 
   it('parses a path to branched and straight actions', function () {
-    var action = parser.parse('step1 -> \
-      { step2a1 -> step2a2 | step2b1 -> step2b2 }');
+    var path = 'step1 -> { step2a1 -> step2a2 | step2b1 -> step2b2 }';
+    var action = parser.parse(path);
     expect(action.name).toEqual('step1');
     expect(action.next.length).toEqual(2);
     for (var i = 0, length = action.next.length; i < 0; i++) {
@@ -105,12 +137,14 @@ describe('parser', function () {
       } else if (second.name === 'step2b1') {
         expect(second.next.name).toEqual('step2b2');
       } else {
-        throw new Error('unexpected action: ' + second.name);
+        throw new Error('unexpected action name: ' + second.name);
       }
     }
   });
 
   it('parses a path to complex actions', function () {
+    var path = 'Step1 -> \
+      { Step2-A -> Step2-2 | Step2-B -> { Step3-A | Step3-B -> Step4 } }';
     // todo: impl
   });
 
