@@ -4,7 +4,7 @@ var hustler = (function () {
   var module = {}; // external scripts are concatenated to this object
 
   var actions = {};
-  var groupedActions = {};
+  var groups = {};
   var patterns = {};
 
   function on(path, action, pattern) {
@@ -20,10 +20,10 @@ var hustler = (function () {
       var currentGroup = '';
       for (var i = 0; i < length; i++) {
         currentGroup = currentGroup + '.' + groupNames[i];
-        if (groupedActions[currentGroup] === undefined) {
-          groupedActions[currentGroup] = [];
+        if (groups[currentGroup] === undefined) {
+          groups[currentGroup] = [];
         }
-        groupedActions.push(action);
+        groups.push(action);
       }
     }
   }
@@ -87,7 +87,17 @@ var hustler = (function () {
   }
 
   function execute(name, arg) {
-    return actions[name](arg);
+    if (name.substr(name.length-2) === '.*') { // ends with '.*'
+      var groupName = name.substr(0, name.length-2);
+      var groupedActions = groups[groupName];
+      var cargo = arg;
+      for (var i = 0, length = groupedActions.length; i < length; i++) {
+        cargo = groupedActions[i](cargo);
+      }
+      return cargo;
+    } else {
+      return actions[name](arg);
+    }
   }
 
   var privates = { // an object for exporting private apis
