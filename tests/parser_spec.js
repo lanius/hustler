@@ -1,6 +1,6 @@
 describe('parser', function () {
 
-  var parser = hustler._module.parser;
+  var parser = hustler._.module.parser;
 
   var helper = {
     expectParsedActionNameToEqualPath : function (path) {

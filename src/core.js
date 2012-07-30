@@ -69,15 +69,37 @@ var hustler = (function () {
     return true; // all patterns are matched
   }
 
+  var privates = { // an object for exporting private apis
+    module: module,
+    actions: {
+      get: function (name) {
+        return actions[name];
+      },
+      set: function (name, action) {
+        actions[name] = action;
+      },
+      clear: function () {
+        actions = {};
+      }
+    },
+    patterns: {
+      get: function (name) {
+        return patterns[name];
+      },
+      set: function (name, pattern) {
+        patterns[name] = pattern;
+      },
+      clear: function () {
+        patterns = {};
+      }
+    }
+  };
+
   return {
     on: on,
     emit: emit,
     emitImmediately: emitImmediately,
-
-    // export private apis for mainly tests
-    _module: module,
-    _actions: actions,
-    _patterns: patterns
+    _: privates
   };
 
 }());

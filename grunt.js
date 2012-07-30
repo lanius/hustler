@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 
     shell: {
       generate_parser: {
-        command: 'pegjs --export-var hustler._module.parser src/parser/hustler.pegjs src/parser/parser.js'
+        command: 'pegjs --export-var hustler._.module.parser src/parser/hustler.pegjs src/parser/parser.js'
       }
     }
 
