@@ -23,7 +23,7 @@ var hustler = (function () {
         if (groups[currentGroup] === undefined) {
           groups[currentGroup] = [];
         }
-        groups.push(action);
+        groups[currentGroup].push(action);
       }
     }
   }
