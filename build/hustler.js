@@ -19,11 +19,12 @@ var hustler = (function () {
     if (length > 1) { // if group exists
       var currentGroup = '';
       for (var i = 0; i < length; i++) {
-        currentGroup = currentGroup + '.' + groupNames[i];
+        currentGroup = currentGroup + groupNames[i];
         if (groups[currentGroup] === undefined) {
           groups[currentGroup] = [];
         }
         groups[currentGroup].push(action);
+        currentGroup += '.';
       }
     }
   }

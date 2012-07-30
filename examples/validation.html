@@ -115,7 +115,7 @@
       });
 
       $('[name=submit]').on('click', emit(
-        'collect -> validate.required -> validate.number \
+        'collect -> validate.* \
         -> { valid -> submit -> clear.error | invalid -> error }'
       ));
 
