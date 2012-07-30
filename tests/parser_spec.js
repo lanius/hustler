@@ -61,6 +61,10 @@ describe('parser', function () {
       helper.expectParsedActionNameToEqualPath('!action!name!');
     });
 
+    it('parses a path that contains asterisk to actions', function () {
+      helper.expectParsedActionNameToEqualPath('*action*name*');
+    });
+
     it('parses a path that contains dollar to actions', function () {
       helper.expectParsedActionNameToEqualPath('$action$name$');
     });
