@@ -4,11 +4,28 @@ var hustler = (function () {
   var module = {}; // external scripts are concatenated to this object
 
   var actions = {};
+  var groupedActions = {};
   var patterns = {};
 
   function on(path, action, pattern) {
     actions[path] = action;
+    registerGroupedAction(path, action);
     patterns[path] = pattern;
+  }
+
+  function registerGroupedAction(path, action) {
+    var groupNames = path.split('.');
+    var length = groupNames.length;
+    if (length > 1) { // if group exists
+      var currentGroup = '';
+      for (var i = 0; i < length; i++) {
+        currentGroup = currentGroup + '.' + groupNames[i];
+        if (groupedActions[currentGroup] === undefined) {
+          groupedActions[currentGroup] = [];
+        }
+        groupedActions.push(action);
+      }
+    }
   }
 
   function emit(path, arg) {
@@ -52,7 +69,7 @@ var hustler = (function () {
       } else { // sequence
       }
 
-      cargo = actions[balls.name](cargo);
+      cargo = execute(balls.name, cargo);
       //console.log('action: ' + balls.name + ' is called.'); // DEBUG
       balls = balls.next;
     }
@@ -67,6 +84,10 @@ var hustler = (function () {
       }
     }
     return true; // all patterns are matched
+  }
+
+  function execute(name, arg) {
+    return actions[name](arg);
   }
 
   var privates = { // an object for exporting private apis
