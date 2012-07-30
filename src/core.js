@@ -4,13 +4,13 @@ var hustler = (function () {
   var module = {}; // external scripts are concatenated to this object
 
   var actions = {};
-  var groups = {};
   var patterns = {};
+  var groups = {};
 
   function on(path, action, pattern) {
     actions[path] = action;
-    registerGroupedAction(path, action);
     patterns[path] = pattern;
+    registerGroupedAction(path, action);
   }
 
   function registerGroupedAction(path, action) {
@@ -103,6 +103,7 @@ var hustler = (function () {
 
   var privates = { // an object for exporting private apis
     module: module,
+
     actions: {
       get: function (name) {
         return actions[name];
@@ -114,6 +115,7 @@ var hustler = (function () {
         actions = {};
       }
     },
+
     patterns: {
       get: function (name) {
         return patterns[name];
@@ -123,6 +125,21 @@ var hustler = (function () {
       },
       clear: function () {
         patterns = {};
+      }
+    },
+
+    groups: {
+      get: function (name) {
+        return groups[name];
+      },
+      set: function (name, action) {
+        if (groups[name] === undefined) {
+          groups[name] = [];
+        }
+        groups[name].push(action);
+      },
+      clear: function () {
+        groups = {};
       }
     }
   };

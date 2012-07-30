@@ -6,10 +6,12 @@ describe('core', function () {
 
   var actions = hustler._.actions;
   var patterns = hustler._.patterns;
+  var groups = hustler._.groups;
 
   afterEach(function () {
     actions.clear();
     patterns.clear();
+    groups.clear();
   });
 
   describe('on', function () {
@@ -24,6 +26,21 @@ describe('core', function () {
       var pattern = {};
       on('step', function () {}, pattern);
       expect(patterns.get('step')).toBe(pattern);
+    });
+
+    it('register grouped actions', function () {
+      var stepA = function () {};
+      on('step.A', stepA);
+      expect(actions.get('step.A')).toBe(stepA);
+
+      var stepB = function () {};
+      on('step.B', stepB);
+      expect(actions.get('step.B')).toBe(stepB);
+
+      var registered = groups.get('step');
+      expect(registered.length).toEqual(2);
+      expect(registered).toContain(stepA);
+      expect(registered).toContain(stepB);
     });
 
   });
@@ -57,6 +74,24 @@ describe('core', function () {
 
       emit('entry -> { dummy | target }')();
       expect(isCalled).toBe(true);
+    });
+
+    it('emit a wildcard action', function () {
+      var stepAIsCalled = false;
+      var stepA = function () {
+        stepAIsCalled = true;
+      };
+      groups.set('step', stepA);
+
+      var stepBIsCalled = false;
+      var stepB = function () {
+        stepBIsCalled = true;
+      };
+      groups.set('step', stepB);
+
+      emit('step.*')();
+      expect(stepAIsCalled).toBe(true);
+      expect(stepBIsCalled).toBe(true);
     });
 
   });
