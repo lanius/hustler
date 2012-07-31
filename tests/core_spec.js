@@ -49,13 +49,66 @@ describe('core', function () {
 
     it('emits a specified action', function () {
       var isCalled = false;
-      var action = function () {
+      actions.set('step', function () {
         isCalled = true;
-      };
-      actions.set('step', action);
+      });
 
       emit('step')();
       expect(isCalled).toBe(true);
+    });
+
+    it('emits a specified action in select-block', function () {
+      var isCalled = false;
+      actions.set('step', function () {
+        isCalled = true;
+      });
+
+      emit('{ step }')();
+      expect(isCalled).toBe(true);
+    });
+
+    it('emits sequential actions', function () {
+      var result = 0;
+      actions.set('stepA', function () {
+        return { count: 1 };
+      });
+      actions.set('stepB', function (data) {
+        if (data.count === 1) {
+          data.count++;
+        }
+        return data;
+      });
+      actions.set('stepC', function (data) {
+        if (data.count === 2) {
+          data.count++;
+        }
+        result = data.count;
+      });
+
+      emit('stepA -> stepB -> stepC')();
+      expect(result).toEqual(3);
+    });
+
+    it('emits sequential actions  in select-block', function () {
+      var result = 0;
+      actions.set('stepA', function () {
+        return { count: 1 };
+      });
+      actions.set('stepB', function (data) {
+        if (data.count === 1) {
+          data.count++;
+        }
+        return data;
+      });
+      actions.set('stepC', function (data) {
+        if (data.count === 2) {
+          data.count++;
+        }
+        result = data.count;
+      });
+
+      emit('{ stepA -> stepB -> stepC }')();
+      expect(result).toEqual(3);
     });
 
     it('emits an action on a specified pattern', function () {
@@ -78,16 +131,14 @@ describe('core', function () {
 
     it('emit a wildcard action', function () {
       var stepAIsCalled = false;
-      var stepA = function () {
+      groups.set('step', function () {
         stepAIsCalled = true;
-      };
-      groups.set('step', stepA);
+      });
 
       var stepBIsCalled = false;
-      var stepB = function () {
+      groups.set('step', function () {
         stepBIsCalled = true;
-      };
-      groups.set('step', stepB);
+      });
 
       emit('step.*')();
       expect(stepAIsCalled).toBe(true);
