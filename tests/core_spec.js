@@ -111,4 +111,21 @@ describe('core', function () {
 
   });
 
+  describe('exception', function () {
+
+    it('throws exception when an action is not found', function () {
+      var getAction = function (arg) {
+        // I want to use Fundction.bind, but PhantomJS does not have it.
+        return function () {
+          actions.get(arg);
+        };
+      };
+      actions.set('stepA', function () {});
+      expect(getAction('stepA')).not.toThrow();
+
+      expect(getAction('stepB')).toThrow();
+    });
+
+  });
+
 });

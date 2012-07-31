@@ -6,6 +6,10 @@ var hustler = (function () {
   var actions = {
     _content : {},
     get: function (name) {
+      var action = this._content[name];
+      if (action === undefined) {
+        throw new Error('action not found: ' + name);
+      }
       return this._content[name];
     },
     set: function (name, action) {
