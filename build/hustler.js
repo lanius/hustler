@@ -74,14 +74,28 @@ var hustler = (function () {
   }
 
   function emit(path, arg) {
-    return function (event) {
-      if (event !== undefined) {
-        // TODO: enable to use event.stopPropagation() with option
-        event.preventDefault(); // TODO: switch enable/disable with option
+    return function (callbackArgs) {
+      if (callbackArgs !== undefined) {
+        handleCallbackArgs(callbackArgs);
       }
       var balls = module.parser.parse(path);
       shot(balls, arg);
     };
+  }
+
+  function handleCallbackArgs(args) {
+    if (args.hasOwnProperty('preventDefault')) {
+    // situation:
+    // - addEventListener('click', emit(path))
+    // - on('click', emit(path))
+      args.preventDefault(); // TODO: switch enable/disable with option
+    }
+
+    // TODO: args.stopPropagation() with enable/disable option
+
+    // TODO: consider xhr or $.ajax
+    // situation:
+    // - $.ajax(...).then(emit(path))
   }
 
   function emitImmediately(path, arg) {
