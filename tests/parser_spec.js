@@ -17,79 +17,79 @@ describe('parser', function () {
     helper.expectParsedActionNameToEqualPath('This is a long named step');
   });
 
-  describe('complex named path', function () {
+  describe('complex named path - contain {char}', function () {
 
-    it('parses a path that contains atmark to actions', function () {
+    it('atmark', function () {
       helper.expectParsedActionNameToEqualPath('@action@name@');
     });
 
-    it('parses a path that contains tilde to actions', function () {
+    it('tilde', function () {
       helper.expectParsedActionNameToEqualPath('~action~name~');
     });
 
-    it('parses a path that contains hat to actions', function () {
+    it('hat', function () {
       helper.expectParsedActionNameToEqualPath('^action^name^');
     });
 
-    it('parses a path that contains comma to actions', function () {
+    it('comma', function () {
       helper.expectParsedActionNameToEqualPath(',action,name,');
     });
 
-    it('parses a path that contains period to actions', function () {
+    it('period', function () {
       helper.expectParsedActionNameToEqualPath('.action.name.');
     });
 
-    it('parses a path that contains underscore to actions', function () {
+    it('underscore', function () {
       helper.expectParsedActionNameToEqualPath('_action_name_');
     });
 
     // todo: test hyphen
 
-    it('parses a path that contains equal to actions', function () {
+    it('equal', function () {
       helper.expectParsedActionNameToEqualPath('=action=name=');
     });
 
-    it('parses a path that contains slash to actions', function () {
+    it('slash', function () {
       helper.expectParsedActionNameToEqualPath('/action/name/');
     });
 
-    it('parses a path that contains question to actions', function () {
+    it('question', function () {
       helper.expectParsedActionNameToEqualPath('?action?name?');
     });
 
-    it('parses a path that contains exclamation to actions', function () {
+    it('exclamation', function () {
       helper.expectParsedActionNameToEqualPath('!action!name!');
     });
 
-    it('parses a path that contains asterisk to actions', function () {
+    it('asterisk', function () {
       helper.expectParsedActionNameToEqualPath('*action*name*');
     });
 
-    it('parses a path that contains dollar to actions', function () {
+    it('dollar', function () {
       helper.expectParsedActionNameToEqualPath('$action$name$');
     });
 
-    it('parses a path that contains percent to actions', function () {
+    it('percent', function () {
       helper.expectParsedActionNameToEqualPath('%action%name%');
     });
 
-    it('parses a path that contains ampersand to actions', function () {
+    it('ampersand', function () {
       helper.expectParsedActionNameToEqualPath('&action&name&');
     });
 
-    it('parses a path that contains hash to actions', function () {
+    it('hash', function () {
       helper.expectParsedActionNameToEqualPath('#action#name#');
     });
 
-    it('parses a path that contains square brackets to actions', function () {
+    it('square brackets', function () {
       helper.expectParsedActionNameToEqualPath('[action][name]');
     });
 
-    it('parses a path that contains round bracket to actions', function () {
+    it('round bracket', function () {
       helper.expectParsedActionNameToEqualPath('(action)(name)');
     });
 
-    it('parses a path that contains new lines to actions', function () {
+    it('new lines', function () {
       helper.expectParsedActionNameToEqualPath('this is \
         action name \
         that contain \
