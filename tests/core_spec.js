@@ -89,7 +89,7 @@ describe('core', function () {
       expect(result).toEqual(3);
     });
 
-    it('emits sequential actions  in select-block', function () {
+    it('emits sequential actions in select-block', function () {
       var result = 0;
       actions.set('stepA', function () {
         return { count: 1 };
@@ -111,25 +111,47 @@ describe('core', function () {
       expect(result).toEqual(3);
     });
 
-    it('emits an action on a specified pattern', function () {
+    it('emits with a specified pattern', function () {
       actions.set('entry', function () {
         return { target: true };
       });
 
-      var isCalled = false;
+      var targetIsCalled = false;
       actions.set('target', function () {
-        isCalled = true;
+        targetIsCalled = true;
       });
       patterns.set('target', { target: true });
 
-      actions.set('dummy', function () {});
+      var dummyIsCalled = false;
+      actions.set('dummy', function () {
+        dummyIsCalled = true;
+      });
       patterns.set('dummy', { target: false });
 
       emit('entry -> { dummy | target }')();
-      expect(isCalled).toBe(true);
+      expect(targetIsCalled).toBe(true);
+      expect(dummyIsCalled).toBe(false);
     });
 
-    it('emit a wildcard action', function () {
+    it('emits immediately branched actions', function () {
+      var targetIsCalled = false;
+      actions.set('target', function () {
+        targetIsCalled = true;
+      });
+      patterns.set('target', { target: true });
+
+      var dummyIsCalled = false;
+      actions.set('dummy', function () {
+        dummyIsCalled = true;
+      });
+      patterns.set('dummy', { target: false });
+
+      emit('{ dummy | target }', { target: true })();
+      expect(targetIsCalled).toBe(true);
+      expect(dummyIsCalled).toBe(false);
+    });
+
+    it('emits a wildcard action', function () {
       var stepAIsCalled = false;
       groups.set('step', function () {
         stepAIsCalled = true;
