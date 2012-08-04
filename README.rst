@@ -63,7 +63,7 @@ To execute conditional sequence, register actions with a pattern:
     $('#info').text('code is invalid.');
   }, { valid: false });
 
-And emit a event with conditinal expression:
+And emit a event with conditional expression:
 
 .. code:: javascript
 
