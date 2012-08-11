@@ -17,7 +17,7 @@ describe('parser', function () {
     helper.expectParsedActionNameToEqualPath('This is a long named step');
   });
 
-  describe('complex named path - contain {char}', function () {
+  describe('complex named path - contains {char}', function () {
 
     it('atmark', function () {
       helper.expectParsedActionNameToEqualPath('@action@name@');

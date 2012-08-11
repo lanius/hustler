@@ -49,7 +49,19 @@ var hustler = (function () {
     }
   };
 
-  function on(path, action, pattern) {
+  function on(path, actionOrPattern, pattern) {
+    var action;
+    if (helper.isFunction(actionOrPattern)) {
+      action = actionOrPattern;
+    } else if (helper.isObject(actionOrPattern)) {
+      action = function (data) {
+        return data;
+      };
+      pattern = actionOrPattern;
+    } else {
+      throw new Error('invalid argument: ' + actionOrPattern);
+    }
+
     actions.set(path, action);
     patterns.set(path, pattern);
     if (hasGroup(path)) {
@@ -160,9 +172,14 @@ var hustler = (function () {
   }
 
   var helper = {
+    toString: function(obj) {
+      return Object.prototype.toString.call(obj);
+    },
+    isObject: function (obj) {
+      return (this.toString(obj) === '[object Object]');
+    },
     isFunction: function (obj) {
-      var toString = Object.prototype.toString;
-      return (toString.call(obj) === '[object Function]');
+      return (this.toString(obj) === '[object Function]');
     }
   };
 

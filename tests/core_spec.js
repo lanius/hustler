@@ -17,13 +17,19 @@ describe('core', function () {
 
   describe('on', function () {
 
-    it('register an action', function () {
+    it('registers an action', function () {
       var action = function () {};
       on('step', action);
       expect(actions.get('step')).toBe(action);
     });
 
-    it('register a pattern', function () {
+    it('registers a pattern', function () {
+      var pattern = {};
+      on('step', pattern);
+      expect(patterns.get('step')).toBe(pattern);
+    });
+
+    it('registers an action with a pattern', function () {
       var pattern = {};
       on('step', function () {}, pattern);
       expect(patterns.get('step')).toBe(pattern);
@@ -200,14 +206,34 @@ describe('core', function () {
       expect(getAction('stepB')).toThrow();
     });
 
+    it('throws exception when invalid argument registered', function () {
+      var register = function (arg) {
+        return function () {
+          on('path', arg);
+        };
+      };
+      expect(register(function () {})).not.toThrow();
+      expect(register({})).not.toThrow();
+      expect(register('string')).toThrow();
+      expect(register(123)).toThrow();
+    });
+
   });
 
   describe('helper', function () {
 
-    it('tests whether object is function or not', function () {
+    it('tests whether object type is function or not', function () {
       expect(helper.isFunction(function () {})).toBe(true);
       expect(helper.isFunction({})).toBe(false);
       expect(helper.isFunction('string')).toBe(false);
+      expect(helper.isFunction(123)).toBe(false);
+    });
+
+    it('tests whether object type is object or not', function () {
+      expect(helper.isObject({})).toBe(true);
+      expect(helper.isObject(function () {})).toBe(false);
+      expect(helper.isObject('string')).toBe(false);
+      expect(helper.isObject(123)).toBe(false);
     });
 
   });
