@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Japanese example - hustler</title>
+  </head>
+  <body>
+    
+    <div>
+      <input id="in" type="text"/>
+      <button id="copy">-&gt;</button>
+      <input id="out" type="text"/>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="../build/hustler.min.js"></script>
+    <script>
+      var on = hustler.on;
+      var emit = hustler.emit;
+
+      on('入力値を取得', function () {
+        return $('#in').val();
+      });
+
+      on('ログに出力', function (data) {
+        console.log(data);
+        return data;
+      });
+
+      on('画面に出力', function (data) {
+        $('#out').val(data);
+      });
+
+      $('#copy').on('click', emit('入力値を取得 -> ログに出力 -> 画面に出力'));
+
+    </script>
+
+  </body>
+</html>

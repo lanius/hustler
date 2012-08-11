@@ -97,6 +97,10 @@ describe('parser', function () {
       );
     });
 
+    it('Japanese', function () {
+      helper.expectParsedActionNameToEqualPath('アクションの名前');
+    });
+
   });
 
   it('parses a path to straight actions', function () {
