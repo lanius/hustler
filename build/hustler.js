@@ -13,6 +13,9 @@ var hustler = (function () {
       return this._content[name];
     },
     set: function (name, action) {
+      if (this._content[name] !== undefined) {
+        throw new Error('action is already registered: ' + name);
+      }
       this._content[name] = action;
     },
     clear: function () {
@@ -26,6 +29,9 @@ var hustler = (function () {
       return this._content[name];
     },
     set: function (name, pattern) {
+      if (this._content[name] !== undefined) {
+        throw new Error('pattern is already registered: ' + name);
+      }
       this._content[name] = pattern;
     },
     clear: function () {

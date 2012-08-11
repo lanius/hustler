@@ -193,7 +193,7 @@ describe('core', function () {
 
   describe('exception', function () {
 
-    it('throws exception when an action is not found', function () {
+    it('throws when an action is not found', function () {
       var getAction = function (arg) {
         // I want to use Fundction.bind, but PhantomJS does not have it.
         return function () {
@@ -202,14 +202,36 @@ describe('core', function () {
       };
       actions.set('stepA', function () {});
       expect(getAction('stepA')).not.toThrow();
-
       expect(getAction('stepB')).toThrow();
     });
 
-    it('throws exception when invalid argument registered', function () {
+    it('throws when an action is already registered', function () {
+      var setAction = function (arg) {
+        return function () {
+          actions.set(arg, function () {});
+        };
+      };
+      expect(setAction('stepA')).not.toThrow();
+      expect(setAction('stepA')).toThrow();
+      expect(setAction('stepB')).not.toThrow();
+    });
+
+    it('throws when a pattern is already registered', function () {
+      var setPattern = function (arg) {
+        return function () {
+          patterns.set(arg, {});
+        };
+      };
+      expect(setPattern('PatternA')).not.toThrow();
+      expect(setPattern('PatternA')).toThrow();
+      expect(setPattern('PatternB')).not.toThrow();
+    });
+
+    it('throws when invalid argument registered', function () {
+      var count = 0; // number for generating different action names
       var register = function (arg) {
         return function () {
-          on('path', arg);
+          on('path' + (count++), arg);
         };
       };
       expect(register(function () {})).not.toThrow();
