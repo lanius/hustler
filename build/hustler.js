@@ -159,11 +159,19 @@ var hustler = (function () {
     }
   }
 
+  var helper = {
+    isFunction: function (obj) {
+      var toString = Object.prototype.toString;
+      return (toString.call(obj) === '[object Function]');
+    }
+  };
+
   var privates = { // an object for exporting private apis
     module: module,
     actions: actions,
     patterns: patterns,
-    groups: groups
+    groups: groups,
+    helper: helper
   };
 
   return {

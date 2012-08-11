@@ -7,6 +7,7 @@ describe('core', function () {
   var actions = hustler._.actions;
   var patterns = hustler._.patterns;
   var groups = hustler._.groups;
+  var helper = hustler._.helper;
 
   afterEach(function () {
     actions.clear();
@@ -197,6 +198,16 @@ describe('core', function () {
       expect(getAction('stepA')).not.toThrow();
 
       expect(getAction('stepB')).toThrow();
+    });
+
+  });
+
+  describe('helper', function () {
+
+    it('tests whether object is function or not', function () {
+      expect(helper.isFunction(function () {})).toBe(true);
+      expect(helper.isFunction({})).toBe(false);
+      expect(helper.isFunction('string')).toBe(false);
     });
 
   });
