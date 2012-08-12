@@ -56,6 +56,9 @@ var hustler = (function () {
   };
 
   function on(path, actionOrPattern, pattern) {
+    // consider the following cases
+    // - on(path, action(function), pattern(object))
+    // - on(path, pattern(object))
     var action;
     if (helper.isFunction(actionOrPattern)) {
       action = actionOrPattern;
@@ -70,6 +73,7 @@ var hustler = (function () {
 
     actions.set(path, action);
     patterns.set(path, pattern);
+    
     if (hasGroup(path)) {
       parseToGroupNames(path).forEach(function (name) {
         groups.set(name, action);
