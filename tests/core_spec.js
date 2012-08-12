@@ -222,9 +222,9 @@ describe('core', function () {
           patterns.set(arg, {});
         };
       };
-      expect(setPattern('PatternA')).not.toThrow();
-      expect(setPattern('PatternA')).toThrow();
-      expect(setPattern('PatternB')).not.toThrow();
+      expect(setPattern('patternA')).not.toThrow();
+      expect(setPattern('patternA')).toThrow();
+      expect(setPattern('patternB')).not.toThrow();
     });
 
     it('throws when invalid argument registered', function () {
@@ -238,6 +238,21 @@ describe('core', function () {
       expect(register({})).not.toThrow();
       expect(register('string')).toThrow();
       expect(register(123)).toThrow();
+    });
+
+    it('throws when more than 2 default patterns exist', function () {
+      actions.set('actionA', function () {});
+      actions.set('actionB', function () {});
+      patterns.set('actionB', { patternExists: true });
+      expect(function () {
+        emit('{ actionA | actionB }')();
+      }).not.toThrow();
+
+      actions.set('actionC', function () {});
+      actions.set('actionD', function () {});
+      expect(function () {
+        emit('{ actionC | actionD }')();
+      }).toThrow();
     });
 
   });

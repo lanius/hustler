@@ -1,6 +1,8 @@
 var hustler = (function () {
   'use strict';
 
+  // TODO: support namespace
+
   var module = {}; // external scripts are concatenated to this object
 
   var actions = {
@@ -73,7 +75,7 @@ var hustler = (function () {
 
     actions.set(path, action);
     patterns.set(path, pattern);
-    
+
     if (hasGroup(path)) {
       parseToGroupNames(path).forEach(function (name) {
         groups.set(name, action);
@@ -127,7 +129,6 @@ var hustler = (function () {
   function shot(balls, arg) {
     var cargo = arg;
     while (balls) {
-
       if (balls.length) { // selection
         var defaultBall;
         var matched = false;
@@ -135,6 +136,10 @@ var hustler = (function () {
           var ball = balls[i];
           var pattern = patterns.get(ball.name);
           if (pattern === undefined) {
+            // if pattern is not found, it is used as default
+            if (defaultBall !== undefined) {
+              throw new Error('more than 2 default patterns exist.');
+            }
             defaultBall = ball;
             continue;
           }
@@ -157,10 +162,16 @@ var hustler = (function () {
   }
 
   function match(target, pattern) {
+    // so far, supports object only
+    // TODO: support string and number
+    if (!helper.isObject(target)) {
+      return false;
+    }
+
     for (var prop in pattern) {
       if (pattern.hasOwnProperty(prop)) {
         if (target[prop] !== pattern[prop]) {
-          return false; // any pattern is not matched
+          return false; // unmatched pattern exists
         }
       }
     }
