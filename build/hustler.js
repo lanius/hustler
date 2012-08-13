@@ -57,6 +57,111 @@ var hustler = (function () {
     }
   };
 
+  // Actions
+  function Actions() {
+    this._content = {};
+  }
+
+  (function (p) {
+    p.register = function (name, action) {
+      if (this._content[name] !== undefined) {
+        throw new Error('action is already registered: ' + name);
+      }
+      this._content[name] = action;
+    };
+    p.lookup = function (name) {
+      var action = this._content[name];
+      if (action === undefined) {
+        throw new Error('action is not found: ' + name);
+      }
+      return this._content[name];
+    };
+    p.clear = function () {
+      this._content = {};
+    };
+  }(Actions.prototype));
+
+  // Patterns
+  function Patterns() {
+    this._content = {};
+  }
+
+  (function (p) {
+    p.register = function (name, pattern) {
+      if (this._content[name] !== undefined) {
+        throw new Error('pattern is already registered: ' + name);
+      }
+      this._content[name] = pattern;
+    };
+    p.lookup = function (name) {
+      return this._content[name];
+    };
+    p.clear = function () {
+      this._content = {};
+    };
+  }(Actions.prototype));
+
+  // Groups
+  function Groups() {
+    this._content = {};
+  }
+
+  (function (p) {
+    p.register = function (name, action) {
+      if (this._content[name] === undefined) {
+        this._content[name] = [];
+      }
+      this._content[name].push(action);
+    };
+    p.lookup = function (name) {
+      return this._content[name];
+    };
+    p.clear = function () {
+      this._content = {};
+    };
+  }(Actions.prototype));
+
+  // Namespaces
+  var namespaces = {
+    _envs : {},
+    _stack: [], 
+    begin: function (name) {
+      this._stack.push(name);
+    },
+    end: function () {
+      this._stack.pop();
+    },
+    current: function () {
+      var stack = this._stack;
+      return stack[stack.length - 1]; // last is current namespace name
+    },
+    env: function (name) {
+      var e = this._envs[name];
+      if (e === undefined) {
+        this._envs[name] = e = {
+          actions: new Actions(),
+          patterns: new Patterns(),
+          groups: new Groups()
+        };
+      }
+      return e;
+    },
+    currentEnv: function() {
+      return this.env(this.current());
+    },
+    clear: function () {
+      this._envs = {};
+      this._stack = [];
+    }
+  };
+
+  // Core APIs
+  function namespace(name, func) {
+    namespace.begin(name);
+    func();
+    namespace.end();
+  }
+
   function on(path, actionOrPattern, pattern) {
     // consider the following cases
     // - on(path, action(function), pattern(object))
