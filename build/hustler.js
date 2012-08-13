@@ -147,12 +147,12 @@ var hustler = (function () {
         handleCallbackArgs(callbackArgs);
       }
       var balls = module.parser.parse(path);
-      shot(balls, arg, env);
+      return shot(balls, arg, env);
     };
   }
 
   function emitImmediately(path, arg) {
-    emit(path, arg)();
+    return emit(path, arg)();
   }
 
   // Helpers
@@ -220,6 +220,7 @@ var hustler = (function () {
       //console.log('action: ' + balls.name + ' is called.'); // DEBUG
       balls = balls.next;
     }
+    return cargo;
   }
 
   function match(target, pattern) {
