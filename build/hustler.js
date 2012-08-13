@@ -171,7 +171,7 @@ var hustler = (function () {
   }
 
   function handleCallbackArgs(args) {
-    if (args.hasOwnProperty('preventDefault')) { // TODO: fixme... use 'in'
+    if ('preventDefault' in args) {
     // situation:
     // - addEventListener('click', emit(path))
     // - on('click', emit(path))
