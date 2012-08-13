@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>namespace example - hustler</title>
+  </head>
+  <body>
+    
+    <div>
+      <button id="buttonA">Button A</button>
+      <span id="outA" />
+    </div>
+
+    <div>
+      <button id="buttonB">Button B</button>
+      <span id="outB" />
+    </div>
+
+    <div>
+      <button id="buttonC">Button C</button>
+      <span id="outC" />
+    </div>
+
+    <div>
+      <button id="buttonD">Button D</button>
+      <span id="outD" />
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="../build/hustler.min.js"></script>
+    <script>
+      var namespace = hustler.namespace;
+      var on = hustler.on;
+      var emit = hustler.emit;
+
+      namespace('Namespace A', function () {
+        on('out', function () {
+          $('#outA').text('Button A is pressed.');
+        });
+
+        $('#buttonA').on('click', emit('out'));
+      });
+
+      namespace('Namespace B', function () {
+        on('out', function () {
+          $('#outB').text('Button B is pressed.');
+        });
+
+        $('#buttonB').on('click', emit('out'));
+      });
+
+      namespace('Namespace C', function () {
+        on('out', function () {
+          $('#outC').text('Button C is pressed.');
+        });
+
+        $('#buttonC').on('click', emit('out'));
+
+        namespace('Namespace D', function () { // nested namespace
+          on('out', function () {
+            $('#outD').text('Button D is pressed.');
+          });
+
+          $('#buttonD').on('click', emit('out'));
+        });
+
+      });
+
+    </script>
+
+  </body>
+</html>

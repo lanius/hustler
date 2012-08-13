@@ -1,61 +1,7 @@
 var hustler = (function () {
   'use strict';
 
-  // TODO: support namespace
-
   var module = {}; // external scripts are concatenated to this object
-
-  var actions = {
-    _content : {},
-    get: function (name) {
-      var action = this._content[name];
-      if (action === undefined) {
-        throw new Error('action not found: ' + name);
-      }
-      return this._content[name];
-    },
-    set: function (name, action) {
-      if (this._content[name] !== undefined) {
-        throw new Error('action is already registered: ' + name);
-      }
-      this._content[name] = action;
-    },
-    clear: function () {
-      this._content = {};
-    }
-  };
-
-  var patterns = {
-    _content : {},
-    get: function (name) {
-      return this._content[name];
-    },
-    set: function (name, pattern) {
-      if (this._content[name] !== undefined) {
-        throw new Error('pattern is already registered: ' + name);
-      }
-      this._content[name] = pattern;
-    },
-    clear: function () {
-      this._content = {};
-    }
-  };
-
-  var groups = {
-    _content : {},
-    get: function (name) {
-      return this._content[name];
-    },
-    set: function (name, action) {
-      if (this._content[name] === undefined) {
-        this._content[name] = [];
-      }
-      this._content[name].push(action);
-    },
-    clear: function () {
-      this._content = {};
-    }
-  };
 
   // Actions
   function Actions() {
@@ -99,7 +45,7 @@ var hustler = (function () {
     p.clear = function () {
       this._content = {};
     };
-  }(Actions.prototype));
+  }(Patterns.prototype));
 
   // Groups
   function Groups() {
@@ -119,7 +65,7 @@ var hustler = (function () {
     p.clear = function () {
       this._content = {};
     };
-  }(Actions.prototype));
+  }(Groups.prototype));
 
   // Namespaces
   var namespaces = {
@@ -157,19 +103,24 @@ var hustler = (function () {
 
   // Core APIs
   function namespace(name, func) {
-    namespace.begin(name);
+    namespaces.begin(name);
     func();
-    namespace.end();
+    namespaces.end();
   }
 
   function on(path, actionOrPattern, pattern) {
     // consider the following cases
     // - on(path, action(function), pattern(object))
     // - on(path, pattern(object))
+    var env = namespaces.currentEnv();
+    var actions = env.actions;
+    var patterns = env.patterns;
+    var groups = env.groups;
+
     var action;
-    if (helper.isFunction(actionOrPattern)) {
+    if (util.isFunction(actionOrPattern)) {
       action = actionOrPattern;
-    } else if (helper.isObject(actionOrPattern)) {
+    } else if (util.isObject(actionOrPattern)) {
       action = function (data) {
         return data;
       };
@@ -178,16 +129,33 @@ var hustler = (function () {
       throw new Error('invalid argument: ' + actionOrPattern);
     }
 
-    actions.set(path, action);
-    patterns.set(path, pattern);
+    actions.register(path, action);
+    patterns.register(path, pattern);
 
     if (hasGroup(path)) {
       parseToGroupNames(path).forEach(function (name) {
-        groups.set(name, action);
+        groups.register(name, action);
       });
     }
   }
 
+  function emit(path, arg) {
+    var env = namespaces.currentEnv();
+
+    return function (callbackArgs) {
+      if (callbackArgs !== undefined) {
+        handleCallbackArgs(callbackArgs);
+      }
+      var balls = module.parser.parse(path);
+      shot(balls, arg, env);
+    };
+  }
+
+  function emitImmediately(path, arg) {
+    emit(path, arg)();
+  }
+
+  // Helpers
   function hasGroup(path) {
     return (path.split('.').length > 1);
   }
@@ -202,18 +170,8 @@ var hustler = (function () {
     return groupNames;
   }
 
-  function emit(path, arg) {
-    return function (callbackArgs) {
-      if (callbackArgs !== undefined) {
-        handleCallbackArgs(callbackArgs);
-      }
-      var balls = module.parser.parse(path);
-      shot(balls, arg);
-    };
-  }
-
   function handleCallbackArgs(args) {
-    if (args.hasOwnProperty('preventDefault')) {
+    if (args.hasOwnProperty('preventDefault')) { // TODO: fixme... use 'in'
     // situation:
     // - addEventListener('click', emit(path))
     // - on('click', emit(path))
@@ -227,11 +185,9 @@ var hustler = (function () {
     // - $.ajax(...).then(emit(path))
   }
 
-  function emitImmediately(path, arg) {
-    emit(path, arg)();
-  }
+  function shot(balls, arg, env) {
+    var patterns = env.patterns;
 
-  function shot(balls, arg) {
     var cargo = arg;
     while (balls) {
       if (balls.length) { // selection
@@ -239,7 +195,7 @@ var hustler = (function () {
         var matched = false;
         for (var i = 0, length = balls.length; i < length; i++) {
           var ball = balls[i];
-          var pattern = patterns.get(ball.name);
+          var pattern = patterns.lookup(ball.name);
           if (pattern === undefined) {
             // if pattern is not found, it is used as default
             if (defaultBall !== undefined) {
@@ -260,7 +216,7 @@ var hustler = (function () {
       } else { // sequence
       }
 
-      cargo = execute(balls.name, cargo);
+      cargo = execute(balls.name, cargo, env);
       //console.log('action: ' + balls.name + ' is called.'); // DEBUG
       balls = balls.next;
     }
@@ -269,7 +225,7 @@ var hustler = (function () {
   function match(target, pattern) {
     // so far, supports object only
     // TODO: support string and number
-    if (!helper.isObject(target)) {
+    if (!util.isObject(target)) {
       return false;
     }
 
@@ -283,21 +239,24 @@ var hustler = (function () {
     return true; // all patterns are matched
   }
 
-  function execute(name, arg) {
+  function execute(name, arg, env) {
+    var actions = env.actions;
+    var groups = env.groups;
+
     if (name.substr(name.length-2) === '.*') { // ends with '.*'
       var groupName = name.substr(0, name.length-2);
-      var groupedActions = groups.get(groupName);
+      var groupedActions = groups.lookup(groupName);
       var cargo = arg;
       for (var i = 0, length = groupedActions.length; i < length; i++) {
         cargo = groupedActions[i](cargo);
       }
       return cargo;
     } else {
-      return actions.get(name)(arg);
+      return actions.lookup(name)(arg);
     }
   }
 
-  var helper = {
+  var util = {
     toString: function(obj) {
       return Object.prototype.toString.call(obj);
     },
@@ -311,13 +270,12 @@ var hustler = (function () {
 
   var privates = { // an object for exporting private apis
     module: module,
-    actions: actions,
-    patterns: patterns,
-    groups: groups,
-    helper: helper
+    namespaces: namespaces,
+    util: util
   };
 
   return {
+    namespace: namespace,
     on: on,
     emit: emit,
     emitImmediately: emitImmediately,

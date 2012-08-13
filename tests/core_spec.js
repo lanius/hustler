@@ -1,18 +1,26 @@
 describe('core', function () {
 
+  var namespace = hustler.namespaces;
   var on = hustler.on;
   var emit = hustler.emit;
   var emitImmediately = hustler.emitImmediately;
 
-  var actions = hustler._.actions;
-  var patterns = hustler._.patterns;
-  var groups = hustler._.groups;
-  var helper = hustler._.helper;
+  var namespaces = hustler._.namespaces;
+  var util = hustler._.util;
+
+  var actions;
+  var patterns;
+  var groups;
+
+  beforeEach(function () {
+    var env = namespaces.currentEnv();
+    actions = env.actions;
+    patterns = env.patterns;
+    groups = env.groups;
+  });
 
   afterEach(function () {
-    actions.clear();
-    patterns.clear();
-    groups.clear();
+    namespaces.clear();
   });
 
   describe('on', function () {
@@ -20,31 +28,31 @@ describe('core', function () {
     it('registers an action', function () {
       var action = function () {};
       on('step', action);
-      expect(actions.get('step')).toBe(action);
+      expect(actions.lookup('step')).toBe(action);
     });
 
     it('registers a pattern', function () {
       var pattern = {};
       on('step', pattern);
-      expect(patterns.get('step')).toBe(pattern);
+      expect(patterns.lookup('step')).toBe(pattern);
     });
 
     it('registers an action with a pattern', function () {
       var pattern = {};
       on('step', function () {}, pattern);
-      expect(patterns.get('step')).toBe(pattern);
+      expect(patterns.lookup('step')).toBe(pattern);
     });
 
     it('register grouped actions', function () {
       var stepA = function () {};
       on('step.A', stepA);
-      expect(actions.get('step.A')).toBe(stepA);
+      expect(actions.lookup('step.A')).toBe(stepA);
 
       var stepB = function () {};
       on('step.B', stepB);
-      expect(actions.get('step.B')).toBe(stepB);
+      expect(actions.lookup('step.B')).toBe(stepB);
 
-      var registered = groups.get('step');
+      var registered = groups.lookup('step');
       expect(registered.length).toEqual(2);
       expect(registered).toContain(stepA);
       expect(registered).toContain(stepB);
@@ -56,7 +64,7 @@ describe('core', function () {
 
     it('emits a specified action', function () {
       var isCalled = false;
-      actions.set('step', function () {
+      actions.register('step', function () {
         isCalled = true;
       });
 
@@ -66,7 +74,7 @@ describe('core', function () {
 
     it('emits a specified action in select-block', function () {
       var isCalled = false;
-      actions.set('step', function () {
+      actions.register('step', function () {
         isCalled = true;
       });
 
@@ -76,16 +84,16 @@ describe('core', function () {
 
     it('emits sequential actions', function () {
       var result = 0;
-      actions.set('stepA', function () {
+      actions.register('stepA', function () {
         return { count: 1 };
       });
-      actions.set('stepB', function (data) {
+      actions.register('stepB', function (data) {
         if (data.count === 1) {
           data.count++;
         }
         return data;
       });
-      actions.set('stepC', function (data) {
+      actions.register('stepC', function (data) {
         if (data.count === 2) {
           data.count++;
         }
@@ -98,16 +106,16 @@ describe('core', function () {
 
     it('emits sequential actions in select-block', function () {
       var result = 0;
-      actions.set('stepA', function () {
+      actions.register('stepA', function () {
         return { count: 1 };
       });
-      actions.set('stepB', function (data) {
+      actions.register('stepB', function (data) {
         if (data.count === 1) {
           data.count++;
         }
         return data;
       });
-      actions.set('stepC', function (data) {
+      actions.register('stepC', function (data) {
         if (data.count === 2) {
           data.count++;
         }
@@ -119,21 +127,21 @@ describe('core', function () {
     });
 
     it('emits with a specified pattern', function () {
-      actions.set('entry', function () {
+      actions.register('entry', function () {
         return { target: true };
       });
 
       var targetIsCalled = false;
-      actions.set('target', function () {
+      actions.register('target', function () {
         targetIsCalled = true;
       });
-      patterns.set('target', { target: true });
+      patterns.register('target', { target: true });
 
       var dummyIsCalled = false;
-      actions.set('dummy', function () {
+      actions.register('dummy', function () {
         dummyIsCalled = true;
       });
-      patterns.set('dummy', { target: false });
+      patterns.register('dummy', { target: false });
 
       emit('entry -> { dummy | target }')();
       expect(targetIsCalled).toBe(true);
@@ -142,16 +150,16 @@ describe('core', function () {
 
     it('emits immediately branched actions', function () {
       var targetIsCalled = false;
-      actions.set('target', function () {
+      actions.register('target', function () {
         targetIsCalled = true;
       });
-      patterns.set('target', { target: true });
+      patterns.register('target', { target: true });
 
       var dummyIsCalled = false;
-      actions.set('dummy', function () {
+      actions.register('dummy', function () {
         dummyIsCalled = true;
       });
-      patterns.set('dummy', { target: false });
+      patterns.register('dummy', { target: false });
 
       emit('{ dummy | target }', { target: true })();
       expect(targetIsCalled).toBe(true);
@@ -160,12 +168,12 @@ describe('core', function () {
 
     it('emits a wildcard action', function () {
       var stepAIsCalled = false;
-      groups.set('step', function () {
+      groups.register('step', function () {
         stepAIsCalled = true;
       });
 
       var stepBIsCalled = false;
-      groups.set('step', function () {
+      groups.register('step', function () {
         stepBIsCalled = true;
       });
 
@@ -183,7 +191,7 @@ describe('core', function () {
       var action = function () {
         isCalled = true;
       };
-      actions.set('step', action);
+      actions.register('step', action);
 
       emitImmediately('step');
       expect(isCalled).toBe(true);
@@ -193,22 +201,22 @@ describe('core', function () {
 
   describe('exception', function () {
 
-    it('throws when an action is not found', function () {
+    it('is thrown when an action is not found', function () {
       var getAction = function (arg) {
         // I want to use Fundction.bind, but PhantomJS does not have it.
         return function () {
-          actions.get(arg);
+          actions.lookup(arg);
         };
       };
-      actions.set('stepA', function () {});
+      actions.register('stepA', function () {});
       expect(getAction('stepA')).not.toThrow();
       expect(getAction('stepB')).toThrow();
     });
 
-    it('throws when an action is already registered', function () {
+    it('is thrown when an action is already registered', function () {
       var setAction = function (arg) {
         return function () {
-          actions.set(arg, function () {});
+          actions.register(arg, function () {});
         };
       };
       expect(setAction('stepA')).not.toThrow();
@@ -216,10 +224,10 @@ describe('core', function () {
       expect(setAction('stepB')).not.toThrow();
     });
 
-    it('throws when a pattern is already registered', function () {
+    it('is thrown when a pattern is already registered', function () {
       var setPattern = function (arg) {
         return function () {
-          patterns.set(arg, {});
+          patterns.register(arg, {});
         };
       };
       expect(setPattern('patternA')).not.toThrow();
@@ -227,7 +235,7 @@ describe('core', function () {
       expect(setPattern('patternB')).not.toThrow();
     });
 
-    it('throws when invalid argument registered', function () {
+    it('is thrown when invalid argument registered', function () {
       var count = 0; // number for generating different action names
       var register = function (arg) {
         return function () {
@@ -240,16 +248,16 @@ describe('core', function () {
       expect(register(123)).toThrow();
     });
 
-    it('throws when more than 2 default patterns exist', function () {
-      actions.set('actionA', function () {});
-      actions.set('actionB', function () {});
-      patterns.set('actionB', { patternExists: true });
+    it('is thrown when more than 2 default patterns exist', function () {
+      actions.register('actionA', function () {});
+      actions.register('actionB', function () {});
+      patterns.register('actionB', { patternExists: true });
       expect(function () {
         emit('{ actionA | actionB }')();
       }).not.toThrow();
 
-      actions.set('actionC', function () {});
-      actions.set('actionD', function () {});
+      actions.register('actionC', function () {});
+      actions.register('actionD', function () {});
       expect(function () {
         emit('{ actionC | actionD }')();
       }).toThrow();
@@ -257,20 +265,20 @@ describe('core', function () {
 
   });
 
-  describe('helper', function () {
+  describe('util', function () {
 
     it('tests whether object type is function or not', function () {
-      expect(helper.isFunction(function () {})).toBe(true);
-      expect(helper.isFunction({})).toBe(false);
-      expect(helper.isFunction('string')).toBe(false);
-      expect(helper.isFunction(123)).toBe(false);
+      expect(util.isFunction(function () {})).toBe(true);
+      expect(util.isFunction({})).toBe(false);
+      expect(util.isFunction('string')).toBe(false);
+      expect(util.isFunction(123)).toBe(false);
     });
 
     it('tests whether object type is object or not', function () {
-      expect(helper.isObject({})).toBe(true);
-      expect(helper.isObject(function () {})).toBe(false);
-      expect(helper.isObject('string')).toBe(false);
-      expect(helper.isObject(123)).toBe(false);
+      expect(util.isObject({})).toBe(true);
+      expect(util.isObject(function () {})).toBe(false);
+      expect(util.isObject('string')).toBe(false);
+      expect(util.isObject(123)).toBe(false);
     });
 
   });
